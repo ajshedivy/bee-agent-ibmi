@@ -20,7 +20,7 @@
     "url": "https://github.com/i-am-bee/bee-agent-framework-starter/issues"
   },
   "scripts": {
-    "start": "npm exec tsx",
+    "start": "NODE_OPTIONS='--no-deprecation' npm exec tsx",
     "ts:check": "tsc --noEmit --project tsconfig.json",
     "build": "rimraf dist && tsc",
     "lint": "eslint",
@@ -35,6 +35,7 @@
     "prepare": "husky && npm run _ensure_env"
   },
   "dependencies": {
+    "@ibm/mapepire-js": "^0.3.0",
     "bee-agent-framework": "^0.0.39",
     "bee-observe-connector": "^0.0.5",
     "dotenv": "^16.4.5",
