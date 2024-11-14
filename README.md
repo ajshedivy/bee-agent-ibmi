@@ -47,7 +47,7 @@ npm run start src/agent.ts <<< "what employee has the highest salary in each dep
 
 Result:
 
-```json
+```bash
 > start
 > NODE_OPTIONS='--no-deprecation' npm exec tsx src/agent.ts
 
