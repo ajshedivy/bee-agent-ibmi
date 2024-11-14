@@ -1,0 +1,32 @@
+(base) ~/Documents/IBM/sandbox/oss/ai/bee/bee-agent-ibmi [main] 
+$ npm run start src/agent.ts <<< "what employee has the highest salary in each department?"
+
+> start
+> NODE_OPTIONS='--no-deprecation' npm exec tsx src/agent.ts
+
+User 👤 : what employee has the highest salary in each department?
+Agent 🤖 (thought) : The user wants to find the employee with the highest salary in each department. I can do this by joining the 'EMPLOYEE' and 'DEPARTMENT' tables and using a subquery to find the maximum salary for each department.
+
+Agent 🤖 (tool_name) : IBMiTool
+Agent 🤖 (tool_input) : {"query":"SELECT E.EMPNO, E.FIRSTNME, E.LASTNAME, E.JOB, E.SALARY FROM EMPLOYEE E INNER JOIN DEPARTMENT D ON E.WORKDEPT = D.DEPTNO WHERE E.SALARY = (SELECT MAX(E2.SALARY) FROM EMPLOYEE E2 INNER JOIN DEPARTMENT D2 ON E2.WORKDEPT = D2.DEPTNO WHERE D2.DEPTNO = D.DEPTNO)"}
+Agent 🤖 (tool_output) : {"success":true,"result":[{"EMPNO":"000010","FIRSTNME":"CHRISTINE","LASTNAME":"HAAS","JOB":"PRES","SALARY":52750},{"EMPNO":"000020","FIRSTNME":"MICHAEL","LASTNAME":"THOMPSON","JOB":"MANAGER","SALARY":41250},{"EMPNO":"000030","FIRSTNME":"SALLY","LASTNAME":"KWAN","JOB":"MANAGER","SALARY":38250},{"EMPNO":"000060","FIRSTNME":"IRVING","LASTNAME":"STERN","JOB":"MANAGER","SALARY":32250},{"EMPNO":"000070","FIRSTNME":"EVA","LASTNAME":"PULASKI","JOB":"MANAGER","SALARY":36170},{"EMPNO":"000050","FIRSTNME":"JOHN","LASTNAME":"GEYER","JOB":"MANAGER","SALARY":40175},{"EMPNO":"000090","FIRSTNME":"EILEEN","LASTNAME":"HENDERSON","JOB":"MANAGER","SALARY":29750},{"EMPNO":"000100","FIRSTNME":"THEODORE","LASTNAME":"SPENSER","JOB":"MANAGER","SALARY":26150}]}
+Agent 🤖 (final_answer) : Here are the employees with the highest salary in each department:
+
+- President: Christine Haas with a salary of $52,750
+- Manager: Michael Thompson with a salary of $41,250
+- Manager: Sally Kwan with a salary of $38,250
+- Manager: Irving Stern with a salary of $32,250
+- Manager: Eva Pulaski with a salary of $36,170
+- Manager: John Geyer with a salary of $40,175
+- Manager: Eileen Henderson with a salary of $29,750
+- Manager: Theodore Spenser with a salary of $26,150
+Agent 🤖 : Here are the employees with the highest salary in each department:
+
+- President: Christine Haas with a salary of $52,750
+- Manager: Michael Thompson with a salary of $41,250
+- Manager: Sally Kwan with a salary of $38,250
+- Manager: Irving Stern with a salary of $32,250
+- Manager: Eva Pulaski with a salary of $36,170
+- Manager: John Geyer with a salary of $40,175
+- Manager: Eileen Henderson with a salary of $29,750
+- Manager: Theodore Spenser with a salary of $26,150
