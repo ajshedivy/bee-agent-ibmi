@@ -10,7 +10,7 @@ import {
   JSONToolOutput,
 } from "bee-agent-framework/tools/base";
 import { Provider, getMetadata } from "bee-agent-framework/tools/database/metadata";
-import mapepire from "@ibm/mapepire-js";
+import mapepire, { SQLJob } from "@ibm/mapepire-js";
 import { Cache } from "bee-agent-framework/cache/decoratorCache";
 import { DaemonServer } from "@ibm/mapepire-js/dist/src/types.js";
 import { Query } from "@ibm/mapepire-js/dist/src/query.js";
@@ -32,10 +32,19 @@ export class IBMiTool extends Tool<JSONToolOutput<any>, ToolOptions, ToolRunOpti
 
   public constructor(options: ToolOptions) {
     super(options);
+    if (!options.connection.schema) {
+      throw new Error(`Schema is required!`);
+    }
   }
 
   static {
     this.register();
+  }
+
+  protected async setSchema(job: SQLJob, schema: string) {
+    const sql = `SET CURRENT SCHEMA ${schema}`;
+    const query = await job.query(sql);
+    await query.execute();
   }
 
   @Cache()
@@ -43,6 +52,7 @@ export class IBMiTool extends Tool<JSONToolOutput<any>, ToolOptions, ToolRunOpti
     const job = new mapepire.SQLJob();
     try {
       await job.connect(this.options.connection);
+      await this.setSchema(job, this.options.connection.schema);
       return job;
     } catch (e) {
       throw new ToolError(`Unable to connect to Db2 for i: ${e}`, [], {
@@ -73,7 +83,7 @@ export class IBMiTool extends Tool<JSONToolOutput<any>, ToolOptions, ToolRunOpti
     const schema = this.options.connection.schema;
 
     try {
-      metaData = await this.getIBMiMetaData(schema, job);
+      metaData = await this.getIBMiMetaData();
       const query_object: Query<any> = await job.query<any>(query);
       const result = await query_object.execute();
       if (result.has_results && result.success) {
@@ -93,7 +103,9 @@ export class IBMiTool extends Tool<JSONToolOutput<any>, ToolOptions, ToolRunOpti
     }
   }
 
-  private async getIBMiMetaData(schema: string, job: mapepire.SQLJob): Promise<string> {
+  async getIBMiMetaData(): Promise<string> {
+    const job = await this.connection();
+    const schema = this.options.connection.schema;
     const sql = `
       SELECT COLUMN_NAME, TABLE_NAME, DATA_TYPE
       FROM QSYS2.SYSCOLUMNS
@@ -137,5 +149,21 @@ export class IBMiTool extends Tool<JSONToolOutput<any>, ToolOptions, ToolRunOpti
       normalizedQuery.startsWith("SHOW") ||
       normalizedQuery.startsWith("DESC")
     );
+  }
+
+  public async destroy(): Promise<void> {
+    // @ts-expect-error protected property
+    const cache = Cache.getInstance(this, "connection");
+    const entry = cache.get();
+
+    if (entry) {
+      cache.clear();
+
+      try {
+        await entry.data.close();
+      } catch (error) {
+        throw new ToolError(`Failed to close the database connection`, [error]);
+      }
+    }
   }
 }

@@ -138,3 +138,5 @@ dist
 /tmp/code_interpreter_source/*
 !/tmp/code_interpreter_target/
 !/tmp/code_interpreter_source/
+
+local_test/
